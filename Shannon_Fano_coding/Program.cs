@@ -14,7 +14,9 @@ class Program
 
         string a = ShennonFano(str);
 
-        Console.WriteLine(a);
+        Console.WriteLine(a + "\n");
+        Console.WriteLine("Нажмите любую клавишу, чтобы закрыть программу.");
+        Console.ReadKey();
     }
 
     private static string ShennonFano(string s)
