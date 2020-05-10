@@ -1,9 +1,86 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 class Program
 {
+    public static float GetProbability(string s, char c)
+    {
+        return s.Count(n => n == c) / (float)s.Length;
+    }
+
+    public static string GetDifferentChars(string s)
+    {
+        string r = string.Empty;
+
+        foreach (char c in s)
+        {
+            if (!r.Contains(c))
+            {
+                r += c;
+            }
+        }
+
+        return r;
+    }
+
+    public static int GetMinDifference(Dictionary<char, float> p)
+    {
+        if (p.Count == 2)
+        {
+            return 1;
+        }
+
+        int k;
+        int count = p.Count;
+
+        float min = float.MaxValue;
+
+        for (k = 1; k < count; k++)
+        {
+            if (Math.Abs(p.Take(k).ToDictionary(c => c.Key, c => c.Value).Values.Sum() - p.Skip(k).ToDictionary(c => c.Key, c => c.Value).Values.Sum()) < min)
+            {
+                min = Math.Abs(p.Take(k).ToDictionary(c => c.Key, c => c.Value).Values.Sum() - p.Skip(k).ToDictionary(c => c.Key, c => c.Value).Values.Sum());
+            }
+
+            else
+            {
+                break;
+            }
+        }
+
+        return k - 1;
+    }
+
+    public static void GetCodes(Dictionary<char, float> v, Dictionary<char, string> code)
+    {
+        int count = GetMinDifference(v);
+
+        Dictionary<char, float> d1 = v.Take(count).ToDictionary(c => c.Key, c => c.Value);
+        Dictionary<char, float> d2 = v.Skip(count).ToDictionary(c => c.Key, c => c.Value);
+
+        foreach (KeyValuePair<char, float> b in d1)
+        {
+            code[b.Key] += '1';
+        }
+
+        foreach (KeyValuePair<char, float> b in d2)
+        {
+            code[b.Key] += '0';
+        }
+
+        if (d1.Count > 1)
+        {
+            GetCodes(d1, code);
+        }
+
+        if (d2.Count > 1)
+        {
+            GetCodes(d2, code);
+        }
+    }
+
     static void Main()
     {
         Console.WriteLine("Введите строку:");
@@ -25,7 +102,7 @@ class Program
 
         Dictionary<char, string> code = new Dictionary<char, string>();
 
-        string diffChars = GetDifferentChars();
+        string diffChars = GetDifferentChars(s);
         string answer = string.Empty;
 
         foreach (char c in diffChars)
@@ -35,12 +112,12 @@ class Program
 
         foreach (char c in diffChars)
         {
-            prob.Add(c, GetProbability(c));
+            prob.Add(c, GetProbability(s, c));
         }
 
         prob = prob.OrderByDescending(c => c.Value).ToDictionary(c => c.Key, c => c.Value);
 
-        GetCodes(prob);
+        GetCodes(prob, code);
 
         foreach (KeyValuePair<char, string> k in code)
         {
@@ -55,81 +132,5 @@ class Program
         }
 
         return answer;
-
-        float GetProbability(char c)
-        {
-            return s.Count(n => n == c) / (float)s.Length;
-        }
-
-        string GetDifferentChars()
-        {
-            string r = string.Empty;
-
-            foreach (char c in s)
-            {
-                if (!r.Contains(c))
-                {
-                    r += c;
-                }
-            }
-
-            return r;
-        }
-
-        int GetMinDifference(Dictionary<char, float> p)
-        {
-            if (p.Count == 2)
-            {
-                return 1;
-            }
-
-            int k;
-            int count = p.Count;
-
-            float min = float.MaxValue;
-
-            for (k = 1; k < count; k++)
-            {
-                if (Math.Abs(p.Take(k).ToDictionary(c => c.Key, c => c.Value).Values.Sum() - p.Skip(k).ToDictionary(c => c.Key, c => c.Value).Values.Sum()) < min)
-                {
-                    min = Math.Abs(p.Take(k).ToDictionary(c => c.Key, c => c.Value).Values.Sum() - p.Skip(k).ToDictionary(c => c.Key, c => c.Value).Values.Sum());
-                }
-
-                else
-                {
-                    break;
-                }
-            }
-
-            return k - 1;
-        }
-
-        void GetCodes(Dictionary<char, float> v)
-        {
-            int count = GetMinDifference(v);
-
-            Dictionary<char, float> d1 = v.Take(count).ToDictionary(c => c.Key, c => c.Value);
-            Dictionary<char, float> d2 = v.Skip(count).ToDictionary(c => c.Key, c => c.Value);
-
-            foreach (KeyValuePair<char, float> b in d1)
-            {
-                code[b.Key] += '1';
-            }
-
-            foreach (KeyValuePair<char, float> b in d2)
-            {
-                code[b.Key] += '0';
-            }
-
-            if (d1.Count > 1)
-            {
-                GetCodes(d1);
-            }
-
-            if (d2.Count > 1)
-            {
-                GetCodes(d2);
-            }
-        }
     }
 }
